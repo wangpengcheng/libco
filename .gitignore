@@ -32,5 +32,6 @@ README.md
 *.exe
 *.out
 *.app
+
 # build
-./build/*
+build*
