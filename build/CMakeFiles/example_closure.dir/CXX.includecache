@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/media/wangpengcheng/文档/GitHub/libco/co_closure.h
+
+/media/wangpengcheng/文档/GitHub/libco/example_closure.cpp
+co_closure.h
+/media/wangpengcheng/文档/GitHub/libco/co_closure.h
+stdio.h
+-
+stdlib.h
+-
+vector
+-
+pthread.h
+-
+unistd.h
+-
+

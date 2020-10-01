@@ -46,3 +46,14 @@ $ make
 ```
 
 
+### TODO
+
+
+- [] 支持ARM32 和64
+- [] 共享栈的使用优化
+- [] 自定义协程分配调度接口
+
+### 参考学习链接
+- [最近都流行实现 Coroutine 么？](https://zhuanlan.zhihu.com/p/32431200)
+- [腾讯libco协程切换分析](https://nifengz.com/libco_context_swap/)
+- [libco协程库上下文切换原理详解](https://blog.csdn.net/lqt641/article/details/73287231)

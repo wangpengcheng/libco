@@ -26,17 +26,19 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <unistd.h>
-
+// 循环调用函数
 int loop(void *)
 {
 	return 0;
 }
+// 静态线程函数
 static void *routine_func( void * )
 {
 	stCoEpoll_t * ev = co_get_epoll_ct(); //ct = current thread
 	co_eventloop( ev,loop,0 );
 	return 0;
 }
+
 int main(int argc,char *argv[])
 {
 	int cnt = atoi( argv[1] );

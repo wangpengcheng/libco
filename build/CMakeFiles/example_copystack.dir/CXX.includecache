@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/media/wangpengcheng/文档/GitHub/libco/co_routine.h
+stdint.h
+-
+sys/poll.h
+-
+pthread.h
+-
+
+/media/wangpengcheng/文档/GitHub/libco/co_routine_inner.h
+co_routine.h
+/media/wangpengcheng/文档/GitHub/libco/co_routine.h
+coctx.h
+/media/wangpengcheng/文档/GitHub/libco/coctx.h
+
+/media/wangpengcheng/文档/GitHub/libco/coctx.h
+stdlib.h
+-
+
+/media/wangpengcheng/文档/GitHub/libco/example_copystack.cpp
+stdio.h
+-
+stdlib.h
+-
+unistd.h
+-
+sys/time.h
+-
+errno.h
+-
+string.h
+-
+coctx.h
+/media/wangpengcheng/文档/GitHub/libco/coctx.h
+co_routine.h
+/media/wangpengcheng/文档/GitHub/libco/co_routine.h
+co_routine_inner.h
+/media/wangpengcheng/文档/GitHub/libco/co_routine_inner.h
+

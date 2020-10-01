@@ -19,12 +19,14 @@
 #ifndef __CO_CTX_H__
 #define __CO_CTX_H__
 #include <stdlib.h>
+// 定义协程描述符指针
 typedef void* (*coctx_pfn_t)( void* s, void* s2 );
 struct coctx_param_t
 {
 	const void *s1;
 	const void *s2;
 };
+// 协程上下文参数
 struct coctx_t
 {
 #if defined(__i386__)
@@ -32,11 +34,11 @@ struct coctx_t
 #else
 	void *regs[ 14 ];
 #endif
-	size_t ss_size;
-	char *ss_sp;
+	size_t ss_size; /* 共享栈大小 */
+	char *ss_sp;/* 共享栈指针 */
 	
 };
 
-int coctx_init( coctx_t *ctx );
-int coctx_make( coctx_t *ctx,coctx_pfn_t pfn,const void *s,const void *s1 );
+int coctx_init( coctx_t *ctx ); /* 协程上下文初始化 */
+int coctx_make( coctx_t *ctx,coctx_pfn_t pfn,const void *s,const void *s1 );/* 初始化对应指针 */
 #endif

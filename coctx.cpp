@@ -51,7 +51,7 @@ available.
 // | regs[4]: edi |
 // | regs[5]: esi |
 // | regs[6]: ebp |
-// | regs[7]: eax |  = esp
+// | regs[7]: eax |  = esp 
 enum {
   kEIP = 0,
   kEBP = 6,
@@ -96,6 +96,7 @@ int coctx_make(coctx_t* ctx, coctx_pfn_t pfn, const void* s, const void* s1) {
   sp = (char*)((unsigned long)sp & -16L);
 
   coctx_param_t* param = (coctx_param_t*)sp;
+  // 注意这里32位中只有8个寄存器，因此参数是通过栈进行传递的，因此对于函数需要多留两个参数地址
   void** ret_addr = (void**)(sp - sizeof(void*) * 2);
   *ret_addr = (void*)pfn;
   param->s1 = s;
@@ -107,26 +108,35 @@ int coctx_make(coctx_t* ctx, coctx_pfn_t pfn, const void* s, const void* s1) {
   return 0;
 }
 #elif defined(__x86_64__)
-int coctx_make(coctx_t* ctx, coctx_pfn_t pfn, const void* s, const void* s1) {
-  char* sp = ctx->ss_sp + ctx->ss_size - sizeof(void*);
-  sp = (char*)((unsigned long)sp & -16LL);
-
-  memset(ctx->regs, 0, sizeof(ctx->regs));
-  void** ret_addr = (void**)(sp);
-  *ret_addr = (void*)pfn;
-
-  ctx->regs[kRSP] = sp;
-
-  ctx->regs[kRETAddr] = (char*)pfn;
-
-  ctx->regs[kRDI] = (char*)s;
-  ctx->regs[kRSI] = (char*)s1;
-  return 0;
-}
 
 int coctx_init(coctx_t* ctx) {
   memset(ctx, 0, sizeof(*ctx));
   return 0;
 }
+
+int coctx_make(coctx_t* ctx, coctx_pfn_t pfn, const void* s, const void* s1) {
+  // 定义共享栈顶指针位置
+  char* sp = ctx->ss_sp + ctx->ss_size - sizeof(void*);
+  //-16LL的16进制表示是0xfffffffffffffff0
+  //& -16LL 相当于后四位清0，也就是最后16bit清零，完成16字节对齐
+  sp = (char*)((unsigned long)sp & -16LL);
+
+  memset(ctx->regs, 0, sizeof(ctx->regs));
+  // 设置返回值地址指针
+  void** ret_addr = (void**)(sp);
+  // 指向返回函数地址
+  *ret_addr = (void*)pfn;
+  // 设置栈顶指针
+  ctx->regs[kRSP] = sp;
+  // 设置返回函数地址
+  ctx->regs[kRETAddr] = (char*)pfn;
+  // 函数入参地址可以通过rdi与rsi进行传入，因此不必再设置栈
+  // rdi地址
+  ctx->regs[kRDI] = (char*)s;
+  // rsi地址
+  ctx->regs[kRSI] = (char*)s1;
+  return 0;
+}
+
 
 #endif
