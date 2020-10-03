@@ -58,4 +58,5 @@ $ make
 - [腾讯libco协程切换分析](https://nifengz.com/libco_context_swap/)
 - [libco协程库上下文切换原理详解](https://blog.csdn.net/lqt641/article/details/73287231)
 - [协程的原理和应用](https://www.cnblogs.com/chenny7/p/4027852.html)
+- [pthread](https://www.rt-thread.org/document/site/programming-manual/posix/posix/)
 

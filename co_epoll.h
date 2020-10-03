@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <time.h>
-
+/* 主要还是对epoll的封装 */
 #if !defined( __APPLE__ ) && !defined( __FreeBSD__ )
 
 #include <sys/epoll.h>

@@ -47,7 +47,7 @@
 #include "co_routine_specific.h"
 
 typedef long long ll64_t;
-
+/* rpc描述结构体，可以看作是connect连接的结构体 */
 struct rpchook_t
 {
 	int user_flag;
@@ -62,7 +62,9 @@ static inline pid_t GetPid()
 	char **p = (char**)pthread_self();
 	return p ? *(pid_t*)(p + 18) : getpid();
 }
+// 设置rpc远程调用符为100*1024个
 static rpchook_t *g_rpchook_socket_fd[ 102400 ] = { 0 };
+/* 定义对应函数指针，方便后面进行获取 */
 
 typedef int (*socket_pfn_t)(int domain, int type, int protocol);
 typedef int (*connect_pfn_t)(int socket, const struct sockaddr *address, socklen_t address_len);
@@ -146,7 +148,7 @@ static pthread_rwlock_unlock_pfn_t g_sys_pthread_rwlock_unlock_func
 */
 
 
-
+/*  */
 static inline unsigned long long get_tick_count()
 {
 	uint32_t lo, hi;
@@ -167,9 +169,9 @@ struct rpchook_connagent_head_t
 	unsigned char    sReserved[6];
 }__attribute__((packed));
 
-
+//宏定义，如果指定name的函数没有获取到，就从动态链接库中加载
 #define HOOK_SYS_FUNC(name) if( !g_sys_##name##_func ) { g_sys_##name##_func = (name##_pfn_t)dlsym(RTLD_NEXT,#name); }
-
+/* 计算毫秒时间差 */
 static inline ll64_t diff_ms(struct timeval &begin,struct timeval &end)
 {
 	ll64_t u = (end.tv_sec - begin.tv_sec) ;
@@ -179,7 +181,7 @@ static inline ll64_t diff_ms(struct timeval &begin,struct timeval &end)
 }
 
 
-
+/* 获取连接描述符 */
 static inline rpchook_t * get_by_fd( int fd )
 {
 	if( fd > -1 && fd < (int)sizeof(g_rpchook_socket_fd) / (int)sizeof(g_rpchook_socket_fd[0]) )
@@ -188,6 +190,7 @@ static inline rpchook_t * get_by_fd( int fd )
 	}
 	return NULL;
 }
+/* 分配连接描述符 */
 static inline rpchook_t * alloc_by_fd( int fd )
 {
 	if( fd > -1 && fd < (int)sizeof(g_rpchook_socket_fd) / (int)sizeof(g_rpchook_socket_fd[0]) )
@@ -200,6 +203,7 @@ static inline rpchook_t * alloc_by_fd( int fd )
 	}
 	return NULL;
 }
+/* 释放连接描述符 */
 static inline void free_by_fd( int fd )
 {
 	if( fd > -1 && fd < (int)sizeof(g_rpchook_socket_fd) / (int)sizeof(g_rpchook_socket_fd[0]) )
@@ -227,15 +231,15 @@ int socket(int domain, int type, int protocol)
 	{
 		return fd;
 	}
-
+	// 创建分配句柄函数
 	rpchook_t *lp = alloc_by_fd( fd );
 	lp->domain = domain;
-	
+	//设置默认标志位
 	fcntl( fd, F_SETFL, g_sys_fcntl_func(fd, F_GETFL,0 ) );
 
 	return fd;
 }
-
+/* 指向accept */
 int co_accept( int fd, struct sockaddr *addr, socklen_t *len )
 {
 	int cli = accept( fd,addr,len );
@@ -260,7 +264,7 @@ int connect(int fd, const struct sockaddr *address, socklen_t address_len)
 
 	rpchook_t *lp = get_by_fd( fd );
 	if( !lp ) return ret;
-
+	// 设置目标连接地址
 	if( sizeof(lp->dest) >= address_len )
 	{
 		 memcpy( &(lp->dest),address,(int)address_len );
@@ -278,7 +282,7 @@ int connect(int fd, const struct sockaddr *address, socklen_t address_len)
 	//2.wait
 	int pollret = 0;
 	struct pollfd pf = { 0 };
-
+	/* 循环执行检测poll */
 	for(int i=0;i<3;i++) //25s * 3 = 75s
 	{
 		memset( &pf,0,sizeof(pf) );
@@ -343,6 +347,7 @@ ssize_t read( int fd, void *buf, size_t nbyte )
 		ssize_t ret = g_sys_read_func( fd,buf,nbyte );
 		return ret;
 	}
+	// 设置超时时间
 	int timeout = ( lp->read_timeout.tv_sec * 1000 ) 
 				+ ( lp->read_timeout.tv_usec / 1000 );
 
@@ -574,6 +579,7 @@ ssize_t recv( int socket, void *buffer, size_t length, int flags )
 
 extern int co_poll_inner( stCoEpoll_t *ctx,struct pollfd fds[], nfds_t nfds, int timeout, poll_pfn_t pollfunc);
 
+/* poll系统调用 */
 int poll(struct pollfd fds[], nfds_t nfds, int timeout)
 {
 	HOOK_SYS_FUNC( poll );
@@ -583,11 +589,13 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout)
 	}
 	pollfd *fds_merge = NULL;
 	nfds_t nfds_merge = 0;
+	// 存储fd和其对应的index
 	std::map<int, int> m;  // fd --> idx
 	std::map<int, int>::iterator it;
 	if (nfds > 1) {
 		fds_merge = (pollfd *)malloc(sizeof(pollfd) * nfds);
 		for (size_t i = 0; i < nfds; i++) {
+			// 存在映射关系
 			if ((it = m.find(fds[i].fd)) == m.end()) {
 				fds_merge[nfds_merge] = fds[i];
 				m[fds[i].fd] = nfds_merge;

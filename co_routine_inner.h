@@ -26,7 +26,7 @@ struct stCoSpec_t
 {
 	void *value;
 };
-
+/* 栈数据结构体 */
 struct stStackMem_t
 {
 	stCoRoutine_t* occupy_co;
@@ -35,7 +35,7 @@ struct stStackMem_t
 	char* stack_buffer;
 
 };
-
+/* 共享内存栈数据结构 */
 struct stShareStack_t
 {
 	unsigned int alloc_idx;
@@ -45,13 +45,13 @@ struct stShareStack_t
 };
 
 
-
+/* 协程控制块关键结构体  */
 struct stCoRoutine_t
 {
-	stCoRoutineEnv_t *env;
-	pfn_co_routine_t pfn;
-	void *arg;
-	coctx_t ctx;
+	stCoRoutineEnv_t *env; /* 分配调度 */
+	pfn_co_routine_t pfn;	/*  运行时函数指针  */
+	void *arg;	/* 参数配置 */
+	coctx_t ctx;	/* 上下文配置 */
 
 	char cStart;
 	char cEnd;
@@ -62,9 +62,9 @@ struct stCoRoutine_t
 	void *pvEnv;
 
 	//char sRunStack[ 1024 * 128 ];
-	stStackMem_t* stack_mem;
+	stStackMem_t* stack_mem; /* 共享栈指针；运行时栈内存 */
 
-
+	/* 临时栈内存保存指针；当存在切换时，需要将关键的数据拷贝到save_buffer中 */
 	//save satck buffer while confilct on same stack_buffer;
 	char* stack_sp; 
 	unsigned int save_size;

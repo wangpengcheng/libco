@@ -47,7 +47,7 @@ extern "C"
 using namespace std;
 stCoRoutine_t *GetCurrCo( stCoRoutineEnv_t *env );
 struct stCoEpoll_t;
-
+/* 协程运行时环境设置 */
 struct stCoRoutineEnv_t
 {
 	stCoRoutine_t *pCallStack[ 128 ];
@@ -275,7 +275,7 @@ stStackMem_t* co_alloc_stackmem(unsigned int stack_size)
 	stack_mem->stack_bp = stack_mem->stack_buffer + stack_size;
 	return stack_mem;
 }
-
+/* 共享栈结构体 */
 stShareStack_t* co_alloc_sharestack(int count, int stack_size)
 {
 	stShareStack_t* share_stack = (stShareStack_t*)malloc(sizeof(stShareStack_t));
@@ -311,8 +311,8 @@ struct stTimeoutItemLink_t;
 struct stTimeoutItem_t;
 struct stCoEpoll_t
 {
-	int iEpollFd;
-	static const int _EPOLL_SIZE = 1024 * 10;
+	int iEpollFd;/* epoll文件描述符 */
+	static const int _EPOLL_SIZE = 1024 * 10; /* 文件描述符大小 */
 
 	struct stTimeout_t *pTimeout;
 
@@ -899,11 +899,12 @@ void FreeEpoll( stCoEpoll_t *ctx )
 	}
 	free( ctx );
 }
-
+/* 链表尾部的协程指针 */
 stCoRoutine_t *GetCurrCo( stCoRoutineEnv_t *env )
 {
 	return env->pCallStack[ env->iCallStackSize - 1 ];
 }
+/* 返回环境上下文 */
 stCoRoutine_t *GetCurrThreadCo( )
 {
 	stCoRoutineEnv_t *env = co_get_curr_thread_env();
@@ -1084,6 +1085,7 @@ void co_disable_hook_sys()
 		co->cEnableSysHook = 0;
 	}
 }
+/* 是否可以系统调用 */
 bool co_is_enable_sys_hook()
 {
 	stCoRoutine_t *co = GetCurrThreadCo();

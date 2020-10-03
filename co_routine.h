@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <sys/poll.h>
 #include <pthread.h>
-
+/* 协程主要结构体和相关函数 */
 //1.struct
 
 struct stCoRoutine_t;

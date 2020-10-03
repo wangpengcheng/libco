@@ -44,6 +44,7 @@ int main()
 extern int 	co_setspecific( pthread_key_t key, const void *value );
 extern void *	co_getspecific( pthread_key_t key );
 
+/* 定义公共函数与公共头文件类 */ 
 #define CO_ROUTINE_SPECIFIC( name,y ) \
 \
 static pthread_once_t _routine_once_##name = PTHREAD_ONCE_INIT; \
