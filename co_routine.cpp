@@ -1079,7 +1079,7 @@ int co_poll_inner( stCoEpoll_t *ctx,struct pollfd fds[], nfds_t nfds, int timeou
 
 	return iRaiseCnt;
 }
-
+// poll 同一接口函数
 int	co_poll( stCoEpoll_t *ctx,struct pollfd fds[], nfds_t nfds, int timeout_ms )
 {
 	return co_poll_inner(ctx, fds, nfds, timeout_ms, NULL);

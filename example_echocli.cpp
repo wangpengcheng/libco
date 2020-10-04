@@ -189,6 +189,7 @@ int main(int argc,char *argv[])
 	
 	struct sigaction sa;
 	sa.sa_handler = SIG_IGN;
+	// 在这里进行信号监听
 	sigaction( SIGPIPE, &sa, NULL );
 	
 	for(int k=0;k<proccnt;k++)
@@ -203,12 +204,14 @@ int main(int argc,char *argv[])
 		{
 			break;
 		}
+		// 创建协程
 		for(int i=0;i<cnt;i++)
 		{
 			stCoRoutine_t *co = 0;
 			co_create( &co,NULL,readwrite_routine, &endpoint);
 			co_resume( co );
 		}
+		// 开启主要事件循环
 		co_eventloop( co_get_epoll_ct(),0,0 );
 
 		exit(0);
