@@ -23,7 +23,7 @@
 #include <string.h>
 
 #if !defined( __APPLE__ ) && !defined( __FreeBSD__ )
-
+// epoll wait函数封装
 int	co_epoll_wait( int epfd,struct co_epoll_res *events,int maxevents,int timeout )
 {
 	return epoll_wait( epfd,events->events,maxevents,timeout );
@@ -134,6 +134,7 @@ int co_epoll_create( int size )
 {
 	return kqueue();
 }
+
 int co_epoll_wait( int epfd,struct co_epoll_res *events,int maxevents,int timeout )
 {
 	struct timespec t = { 0 };

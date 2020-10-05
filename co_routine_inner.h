@@ -29,10 +29,10 @@ struct stCoSpec_t
 /* 栈数据结构体 */
 struct stStackMem_t
 {
-	stCoRoutine_t* occupy_co;
-	int stack_size;
+	stCoRoutine_t* occupy_co; /* 当前栈对应的协程 */
+	int stack_size;/* 栈的大小 */
 	char* stack_bp; //stack_buffer + stack_size
-	char* stack_buffer;
+	char* stack_buffer;/* 共享内存指针 */
 
 };
 /* 共享内存栈数据结构 */

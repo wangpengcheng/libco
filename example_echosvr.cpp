@@ -42,14 +42,16 @@
 #endif
 
 using namespace std;
+// 任务结构体
 struct task_t
 {
 	stCoRoutine_t *co;
 	int fd;
 };
-
+// 读写栈
 static stack<task_t*> g_readwrite;
 static int g_listen_fd = -1;
+// 设置文件描述符为非阻塞模式
 static int SetNonBlock(int iSock)
 {
     int iFlags;
@@ -64,6 +66,7 @@ static int SetNonBlock(int iSock)
 static void *readwrite_routine( void *arg )
 {
 
+	// 开启系统调用
 	co_enable_hook_sys();
 
 	task_t *co = (task_t*)arg;
@@ -72,14 +75,16 @@ static void *readwrite_routine( void *arg )
 	{
 		if( -1 == co->fd )
 		{
+			// 创建并添加协程
 			g_readwrite.push( co );
+			// 切换到主协程
 			co_yield_ct();
 			continue;
 		}
 
 		int fd = co->fd;
 		co->fd = -1;
-
+		// 循环epoll检查读写事件
 		for(;;)
 		{
 			struct pollfd pf = { 0 };
@@ -88,6 +93,7 @@ static void *readwrite_routine( void *arg )
 			co_poll( co_get_epoll_ct(),&pf,1,1000);
 
 			int ret = read( fd,buf,sizeof(buf) );
+			// 键输出原样写入
 			if( ret > 0 )
 			{
 				ret = write( fd,buf,ret );
@@ -104,6 +110,7 @@ static void *readwrite_routine( void *arg )
 	return 0;
 }
 int co_accept(int fd, struct sockaddr *addr, socklen_t *len );
+//accept协程
 static void *accept_routine( void * )
 {
 	co_enable_hook_sys();
@@ -209,7 +216,7 @@ int main(int argc,char *argv[])
 	int cnt = atoi( argv[3] );
 	int proccnt = atoi( argv[4] );
 	bool deamonize = argc >= 6 && strcmp(argv[5], "-d") == 0;
-
+	// 创建
 	g_listen_fd = CreateTcpSocket( port,ip,true );
 	listen( g_listen_fd,1024 );
 	if(g_listen_fd==-1){
@@ -223,28 +230,33 @@ int main(int argc,char *argv[])
 	for(int k=0;k<proccnt;k++)
 	{
 
+		// 创建子进程
 		pid_t pid = fork();
-		if( pid > 0 )
+		if( pid > 0 ) //返回子进程Id 为子父进程，直接继续跳过
 		{
 			continue;
 		}
-		else if( pid < 0 )
+		else if( pid < 0 ) //出现错误
 		{
 			break;
 		}
+		// 创建协程
 		for(int i=0;i<cnt;i++)
 		{
 			task_t * task = (task_t*)calloc( 1,sizeof(task_t) );
 			task->fd = -1;
-
+			// 操作执行读写函数创建协程
 			co_create( &(task->co),NULL,readwrite_routine,task );
+			// 恢复到主线程
 			co_resume( task->co );
 
 		}
 		stCoRoutine_t *accept_co = NULL;
+		// 创建监听协程
 		co_create( &accept_co,NULL,accept_routine,0 );
+		// 恢复到主线程
 		co_resume( accept_co );
-
+		// 开始主线程时间循环
 		co_eventloop( co_get_epoll_ct(),0,0 );
 
 		exit(0);
