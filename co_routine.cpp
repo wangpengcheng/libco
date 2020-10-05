@@ -292,7 +292,7 @@ stShareStack_t* co_alloc_sharestack(int count, int stack_size)
 	share_stack->stack_array = stack_array;
 	return share_stack;
 }
-
+/* 创建共享 */
 static stStackMem_t* co_get_stackmem(stShareStack_t* share_stack)
 {
 	if (!share_stack)
@@ -314,9 +314,9 @@ struct stCoEpoll_t
 	int iEpollFd;/* epoll文件描述符 */
 	static const int _EPOLL_SIZE = 1024 * 10; /* 文件描述符大小 */
 
-	struct stTimeout_t *pTimeout;
+	struct stTimeout_t *pTimeout;/*  */
 
-	struct stTimeoutItemLink_t *pstTimeoutList;
+	struct stTimeoutItemLink_t *pstTimeoutList;/*  */
 
 	struct stTimeoutItemLink_t *pstActiveList;
 
@@ -441,6 +441,7 @@ inline void TakeAllTimeout( stTimeout_t *apTimeout,unsigned long long allNow,stT
 
 
 }
+// 執行對應函數
 static int CoRoutineFunc( stCoRoutine_t *co,void * )
 {
 	if( co->pfn )
@@ -450,14 +451,14 @@ static int CoRoutineFunc( stCoRoutine_t *co,void * )
 	co->cEnd = 1;
 
 	stCoRoutineEnv_t *env = co->env;
-
+	// 切换
 	co_yield_env( env );
 
 	return 0;
 }
 
 
-
+// 创建环境
 struct stCoRoutine_t *co_create_env( stCoRoutineEnv_t * env, const stCoRoutineAttr_t* attr,
 		pfn_co_routine_t pfn,void *arg )
 {
